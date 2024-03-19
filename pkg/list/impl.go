@@ -44,3 +44,23 @@ func (l *List[T]) RemoveAll(elements ...T) bool {
 
 	return wasModified
 }
+
+func (l *List[T]) All(predicate PredicateFunc[T]) bool {
+	for _, element := range *l {
+		if !predicate(element) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (l *List[T]) Any(predicate PredicateFunc[T]) bool {
+	for _, element := range *l {
+		if predicate(element) {
+			return true
+		}
+	}
+
+	return false
+}

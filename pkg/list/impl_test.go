@@ -82,3 +82,87 @@ func TestRemoveAll(t *testing.T) {
 		})
 	}
 }
+
+func TestList_All(t *testing.T) {
+	type testCase struct {
+		name     string
+		list     List[int]
+		pred     PredicateFunc[int]
+		expected bool
+	}
+
+	testCases := []testCase{
+		{
+			name:     "all elements satisfy predicate",
+			list:     List[int]{2, 4, 8, 10},
+			pred:     func(item int) bool { return item%2 == 0 },
+			expected: true,
+		},
+		{
+			name:     "not all elements satisfy predicate",
+			list:     List[int]{1, 2, 3, 4},
+			pred:     func(item int) bool { return item > 2 },
+			expected: false,
+		},
+		{
+			name:     "no elements in list",
+			list:     List[int]{},
+			pred:     func(item int) bool { return item > 2 },
+			expected: true,
+		},
+		{
+			name:     "predicate always returns true",
+			list:     List[int]{1, 2, 3, 4},
+			pred:     func(item int) bool { return true },
+			expected: true,
+		},
+		{
+			name:     "predicate always returns false",
+			list:     List[int]{1, 2, 3, 4},
+			pred:     func(item int) bool { return false },
+			expected: false,
+		},
+	}
+
+	for _, test := range testCases {
+		t.Run(test.name, func(t *testing.T) {
+			result := test.list.All(test.pred)
+			assert.Equal(t, test.expected, result, test.name)
+		})
+	}
+}
+
+func TestAny(t *testing.T) {
+	var lessThanTen PredicateFunc[int] = func(item int) bool {
+		return item < 10
+	}
+
+	var isEven PredicateFunc[int] = func(item int) bool {
+		return item%2 == 0
+	}
+
+	tt := []struct {
+		name      string
+		list      List[int]
+		predicate PredicateFunc[int]
+		expect    bool
+	}{
+		{name: "EmptyList", list: List[int]{}, predicate: lessThanTen, expect: false},
+		{name: "SingleElementList", list: List[int]{8}, predicate: lessThanTen, expect: true},
+		{name: "MultipleElementsAllLessThanTen", list: List[int]{1, 2, 3, 4, 5}, predicate: lessThanTen, expect: true},
+		{name: "MultipleElementsNoneLessThanTen", list: List[int]{10, 11, 12, 13, 14}, predicate: lessThanTen, expect: false},
+		{name: "MultipleElementsSomeLessThanTen", list: List[int]{10, 2, 12, 4, 14}, predicate: lessThanTen, expect: true},
+		{name: "SingleElementListIsEven", list: List[int]{8}, predicate: isEven, expect: true},
+		{name: "SingleElementListIsNotEven", list: List[int]{7}, predicate: isEven, expect: false},
+		{name: "MultipleElementsAllAreEven", list: List[int]{2, 4, 6, 8}, predicate: isEven, expect: true},
+		{name: "MultipleElementsNoneAreEven", list: List[int]{1, 3, 5, 7}, predicate: isEven, expect: false},
+		{name: "MultipleElementsSomeAreEven", list: List[int]{2, 3, 6, 7, 8}, predicate: isEven, expect: true},
+	}
+
+	for _, test := range tt {
+		t.Run(test.name, func(t *testing.T) {
+			result := test.list.Any(test.predicate)
+			assert.Equal(t, test.expect, result)
+		})
+	}
+}
