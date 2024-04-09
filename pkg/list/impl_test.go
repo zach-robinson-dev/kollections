@@ -4,6 +4,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/zach-robinson-dev/kollections/pkg/comparator"
+	"github.com/zach-robinson-dev/kollections/pkg/util"
 )
 
 func TestFilter(t *testing.T) {
@@ -163,6 +166,63 @@ func TestAny(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			result := test.list.Any(test.predicate)
 			assert.Equal(t, test.expect, result)
+		})
+	}
+}
+
+func TestMinWithOrNil(t *testing.T) {
+	var compareInts comparator.Comparator[int] = func(a, b int) int {
+		return a - b
+	}
+
+	tests := []struct {
+		name       string
+		list       List[int]
+		comparator comparator.Comparator[int]
+		want       *int
+	}{
+		{
+			name:       "Empty list",
+			list:       List[int]{},
+			comparator: compareInts,
+			want:       nil,
+		},
+		{
+			name:       "Single element list",
+			list:       List[int]{5},
+			comparator: compareInts,
+			want:       util.PointerTo(5),
+		},
+		{
+			name:       "Multiple elements in ascending order",
+			list:       List[int]{1, 2, 3, 4, 5},
+			comparator: compareInts,
+			want:       util.PointerTo(1),
+		},
+		{
+			name:       "Multiple elements in descending order",
+			list:       List[int]{5, 4, 3, 2, 1},
+			comparator: compareInts,
+			want:       util.PointerTo(1),
+		},
+		{
+			name:       "Multiple elements in random order",
+			list:       List[int]{3, 1, 5, 2, 4},
+			comparator: compareInts,
+			want:       util.PointerTo(1),
+		},
+		{
+			name:       "Multiple elements with duplicates",
+			list:       List[int]{3, 1, 5, 2, 1, 4},
+			comparator: compareInts,
+			want:       util.PointerTo(1),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.list.MinWithOrNil(tt.comparator)
+			assert.Equal(t, tt.want, got, "MinWithOrNil() should return expected result")
 		})
 	}
 }

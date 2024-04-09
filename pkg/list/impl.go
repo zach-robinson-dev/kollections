@@ -1,6 +1,10 @@
 package list
 
-import "reflect"
+import (
+	"reflect"
+
+	"github.com/zach-robinson-dev/kollections/pkg/comparator"
+)
 
 func (l *List[T]) Filter(predicate PredicateFunc[T]) List[T] {
 	result := make(List[T], 0, len(*l))
@@ -63,4 +67,30 @@ func (l *List[T]) Any(predicate PredicateFunc[T]) bool {
 	}
 
 	return false
+}
+
+func (l *List[T]) MinWithOrNil(comparator comparator.Comparator[T]) *T {
+	if len(*l) == 0 {
+		return nil
+	}
+
+	minEntry := (*l)[0]
+
+	for _, element := range *l {
+		if comparator(element, minEntry) < 0 {
+			minEntry = element
+		}
+	}
+
+	return &minEntry
+}
+
+func (l *List[T]) MinWith(comparator comparator.Comparator[T]) T {
+	switch result := l.MinWithOrNil(comparator); result {
+	case nil:
+		var zero T
+		return zero
+	default:
+		return *result
+	}
 }
