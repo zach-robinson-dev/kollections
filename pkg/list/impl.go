@@ -94,3 +94,29 @@ func (l *List[T]) MinWith(comparator comparator.Comparator[T]) T {
 		return *result
 	}
 }
+
+func (l *List[T]) MaxWithOrNil(comparator comparator.Comparator[T]) *T {
+	if len(*l) == 0 {
+		return nil
+	}
+
+	maxEntry := (*l)[0]
+
+	for _, element := range *l {
+		if comparator(element, maxEntry) > 0 {
+			maxEntry = element
+		}
+	}
+
+	return &maxEntry
+}
+
+func (l *List[T]) MaxWith(comparator comparator.Comparator[T]) T {
+	switch result := l.MaxWithOrNil(comparator); result {
+	case nil:
+		var zero T
+		return zero
+	default:
+		return *result
+	}
+}
