@@ -120,3 +120,13 @@ func (l *List[T]) MaxWith(comparator comparator.Comparator[T]) T {
 		return *result
 	}
 }
+
+func Map[T any, R any](list List[T], transform TransformFunc[T, R]) List[R] {
+	result := make(List[R], 0, len(list))
+
+	for _, element := range list {
+		result = append(result, transform(element))
+	}
+
+	return result
+}

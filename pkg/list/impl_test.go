@@ -1,6 +1,7 @@
 package list
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -280,6 +281,45 @@ func TestMaxWithOrNil(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.list.MaxWithOrNil(tt.comparator)
 			assert.Equal(t, tt.want, got, "MaxWithOrNil() should return expected result")
+		})
+	}
+}
+
+func TestMap(t *testing.T) {
+	for _, test := range []struct {
+		name      string
+		list      List[int]
+		transform TransformFunc[int, string]
+		want      List[string]
+	}{
+		{
+			name: "Empty list",
+			list: List[int]{},
+			transform: func(x int) string {
+				return "transformed"
+			},
+			want: List[string]{},
+		},
+		{
+			name: "Single element list",
+			list: List[int]{1},
+			transform: func(x int) string {
+				return strconv.Itoa(x)
+			},
+			want: List[string]{"1"},
+		},
+		{
+			name: "Multiple elements",
+			list: List[int]{1, 2, 3, 4, 5},
+			transform: func(x int) string {
+				return strconv.Itoa(x)
+			},
+			want: List[string]{"1", "2", "3", "4", "5"},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			got := Map(test.list, test.transform)
+			assert.Equal(t, test.want, got, "Map() should return expected result")
 		})
 	}
 }
