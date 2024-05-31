@@ -3,6 +3,8 @@ package comparator
 import (
 	"strings"
 
+	"golang.org/x/exp/constraints"
+
 	"github.com/zach-robinson-dev/kollections/pkg/util"
 )
 
@@ -37,7 +39,7 @@ func BySelector[X any, Y any](comparator Comparator[Y], selector Selector[X, Y])
 	}
 }
 
-func AscendingOrder[C int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64 | string]() Comparator[C] {
+func AscendingOrder[C constraints.Ordered]() Comparator[C] {
 	return func(a C, b C) int {
 		switch {
 		case a == b:
@@ -50,15 +52,15 @@ func AscendingOrder[C int | int8 | int16 | int32 | int64 | uint | uint8 | uint16
 	}
 }
 
-func AscendingOrderBy[T any, C int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64 | string](selector Selector[T, C]) Comparator[T] {
+func AscendingOrderBy[T any, C constraints.Ordered](selector Selector[T, C]) Comparator[T] {
 	return BySelector[T, C](AscendingOrder[C](), selector)
 }
 
-func DescendingOrder[C int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64 | string]() Comparator[C] {
+func DescendingOrder[C constraints.Ordered]() Comparator[C] {
 	return AscendingOrder[C]().Reversed()
 }
 
-func DescendingOrderBy[T any, C int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | uintptr | float32 | float64 | string](selector Selector[T, C]) Comparator[T] {
+func DescendingOrderBy[T any, C constraints.Ordered](selector Selector[T, C]) Comparator[T] {
 	return BySelector[T, C](DescendingOrder[C](), selector)
 }
 
