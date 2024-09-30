@@ -323,3 +323,59 @@ func TestMap(t *testing.T) {
 		})
 	}
 }
+
+func TestList_Single(t *testing.T) {
+	type testCase struct {
+		name     string
+		list     List[int]
+		pred     PredicateFunc[int]
+		expected int
+		err      error
+	}
+
+	testCases := []testCase{
+		{
+			name:     "single element list",
+			list:     List[int]{1},
+			pred:     func(item int) bool { return item == 1 },
+			expected: 1,
+			err:      nil,
+		},
+		{
+			name:     "single element list with mismatched predicate",
+			list:     List[int]{1},
+			pred:     func(item int) bool { return item == 2 },
+			expected: 0,
+			err:      NoSuchElementError{},
+		},
+		{
+			name:     "multiple element list with single match",
+			list:     List[int]{1, 2, 3},
+			pred:     func(item int) bool { return item == 2 },
+			expected: 2,
+			err:      nil,
+		},
+		{
+			name:     "multiple element list with no match",
+			list:     List[int]{1, 2, 3},
+			pred:     func(item int) bool { return item == 4 },
+			expected: 0,
+			err:      NoSuchElementError{},
+		},
+		{
+			name:     "multiple element list with multiple matches",
+			list:     List[int]{1, 2, 3, 2},
+			pred:     func(item int) bool { return item == 2 },
+			expected: 0,
+			err:      TooManyMatchingElementsError{},
+		},
+	}
+
+	for _, test := range testCases {
+		t.Run(test.name, func(t *testing.T) {
+			result, err := test.list.Single(test.pred)
+			assert.Equal(t, test.expected, result)
+			assert.Equal(t, test.err, err)
+		})
+	}
+}

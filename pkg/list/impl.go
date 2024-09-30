@@ -130,3 +130,16 @@ func Map[T any, R any](list List[T], transform TransformFunc[T, R]) List[R] {
 
 	return result
 }
+
+func (l *List[T]) Single(predicate PredicateFunc[T]) (T, error) {
+	var emptyElement T
+
+	switch filteredList := l.Filter(predicate); len(filteredList) {
+	case 0:
+		return emptyElement, NoSuchElementError{}
+	case 1:
+		return filteredList[0], nil
+	default:
+		return emptyElement, TooManyMatchingElementsError{}
+	}
+}
